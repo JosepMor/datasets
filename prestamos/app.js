@@ -236,6 +236,7 @@ function mostrarErrores(lista) {
 }
 
 function recalcular() {
+  avisar('');
   const p = leerFormulario();
   actualizarAyudas(p);
 
@@ -298,13 +299,54 @@ function nombreFichero(res) {
   return `prestamo-${p.sistema}-${Math.round(p.capital)}-${p.frecuencia}.csv`;
 }
 
-function descargarCSV() {
+function avisar(mensaje) {
+  $('estado-acciones').textContent = mensaje;
+}
+
+const AVISOS_DESCARGA = {
+  declined: '',
+  rate_limited: 'Hay otra descarga en curso. Espera un momento y vuelve a intentarlo.',
+  too_large: 'El cuadro es demasiado grande para descargarlo desde aquí.',
+};
+
+/**
+ * Descarga el cuadro en CSV. Cuando la página va incrustada en un visor que
+ * bloquea las descargas normales (claude.ai), se la pide al anfitrión, que
+ * enseña su propia confirmación al usuario.
+ */
+async function descargarCSV() {
   if (!ultimoResultado) return;
-  const blob = new Blob([csv(ultimoResultado)], { type: 'text/csv;charset=utf-8' });
+  avisar('');
+  const contenido = csv(ultimoResultado);
+  const nombre = nombreFichero(ultimoResultado);
+
+  if (window.claude?.downloads?.save) {
+    try {
+      await window.claude.downloads.save({ filename: nombre, data: contenido });
+    } catch (e) {
+      // Si el visor no admite la extensión .csv, se ofrece el mismo contenido
+      // como texto plano.
+      if (e?.code === 'extension_not_enabled') {
+        try {
+          await window.claude.downloads.save({
+            filename: nombre.replace(/\.csv$/, '.txt'),
+            data: contenido,
+          });
+        } catch (e2) {
+          avisar(AVISOS_DESCARGA[e2?.code] ?? 'No se ha podido descargar el fichero desde aquí.');
+        }
+      } else {
+        avisar(AVISOS_DESCARGA[e?.code] ?? 'No se ha podido descargar el fichero desde aquí.');
+      }
+    }
+    return;
+  }
+
+  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = nombreFichero(ultimoResultado);
+  a.download = nombre;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -358,8 +400,17 @@ function guardarEscenario() {
   const res = ultimoResultado;
   const p = res.parametros;
   const sugerido = `${SISTEMAS[p.sistema].split(' ')[0]} ${fmtMonedaCorta.format(p.capital)} · ${String(p.tipoAnual).replace('.', ',')} %`;
-  const nombre = prompt('Nombre del escenario', sugerido);
-  if (nombre === null) return;
+
+  // Algunos contextos (páginas incrustadas en un iframe) bloquean prompt();
+  // en ese caso se guarda con el nombre sugerido en lugar de no hacer nada.
+  let nombre = sugerido;
+  try {
+    const respuesta = prompt('Nombre del escenario', sugerido);
+    if (respuesta === null) return;
+    nombre = respuesta;
+  } catch {
+    /* diálogos no disponibles */
+  }
 
   const lista = leerEscenarios();
   lista.push({

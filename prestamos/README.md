@@ -36,19 +36,47 @@ acumulado, como hacen los bancos.
 
 ## Instalarla en el iPhone
 
-1. Publica la carpeta (ver más abajo) y abre la URL en **Safari**.
-2. Toca el botón *Compartir* → **Añadir a pantalla de inicio**.
-3. Se instala como una app: pantalla completa, icono propio y funcionamiento sin
-   conexión.
+1. Publica la carpeta (ver más abajo) y abre la URL en **Safari** (tiene que ser
+   Safari: Chrome en iPhone no sabe instalar apps en la pantalla de inicio).
+2. Toca el botón *Compartir* (el cuadrado con la flecha hacia arriba, abajo en
+   el centro) → **Añadir a pantalla de inicio** → *Añadir*.
+3. Ya tienes el icono junto al resto de apps. Se abre a pantalla completa, sin
+   barra de navegador, y funciona sin conexión.
 
 ## Publicar con GitHub Pages
 
-En este repositorio: **Settings → Pages → Source: Deploy from a branch**, rama
-`master` y carpeta `/ (root)`. En un par de minutos la app queda en:
+En la página del repositorio en GitHub, desde el ordenador o desde el móvil:
+
+1. **Settings** (la pestaña con el engranaje, arriba del todo).
+2. En la columna de la izquierda, **Pages**.
+3. En *Source* elige **Deploy from a branch**.
+4. En *Branch* elige la rama y la carpeta **/ (root)**, y pulsa **Save**.
+
+A los dos o tres minutos la app está en:
 
 ```
 https://josepmor.github.io/datasets/prestamos/
 ```
+
+Si el repositorio es privado, GitHub Pages exige un plan de pago; en ese caso
+usa el fichero único que se describe justo debajo.
+
+## Versión en un solo fichero
+
+`calculadora-prestamos.html` es la misma app con el CSS y el JavaScript
+incrustados: un único fichero que funciona con doble clic, sin servidor y sin
+conexión. Sirve para enviárselo por correo a alguien, guardarlo en Archivos del
+iPhone o subirlo a cualquier alojamiento que solo acepte una página suelta.
+
+Se regenera desde los ficheros sueltos con:
+
+```bash
+node construir-fichero-unico.mjs
+```
+
+Hay que volver a ejecutarlo cada vez que se toque `index.html`, `estilos.css`,
+`app.js` o `finanzas.js`; si no, el fichero único se queda con la versión
+antigua.
 
 ## Ejecutarla en local
 
@@ -79,14 +107,16 @@ periodicidad.
 
 ```
 prestamos/
-├── index.html              Estructura de la página
-├── estilos.css             Estilos (modo claro y oscuro automáticos)
-├── app.js                  Interfaz: formulario, tabla, CSV, escenarios
-├── finanzas.js             Motor de cálculo (módulo puro, sin DOM)
-├── manifest.webmanifest    Metadatos de la PWA
-├── sw.js                   Service worker (uso sin conexión)
-├── iconos/                 Iconos de la app
-└── test/                   Pruebas del motor de cálculo
+├── index.html                    Estructura de la página
+├── estilos.css                   Estilos (modo claro y oscuro automáticos)
+├── app.js                        Interfaz: formulario, tabla, CSV, escenarios
+├── finanzas.js                   Motor de cálculo (módulo puro, sin DOM)
+├── manifest.webmanifest          Metadatos de la PWA
+├── sw.js                         Service worker (uso sin conexión)
+├── iconos/                       Iconos de la app
+├── test/                         Pruebas del motor de cálculo
+├── construir-fichero-unico.mjs   Genera la versión de un solo fichero
+└── calculadora-prestamos.html    Versión de un solo fichero (generada)
 ```
 
 Al modificar cualquier fichero hay que subir el número de `VERSION` en `sw.js`

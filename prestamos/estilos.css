@@ -1,11 +1,18 @@
 /* Calculadora de préstamos — hoja de estilos única, pensada para iPhone. */
 
+/* Paleta clara. Todos los colores salen de estas variables: ninguna regla de
+   más abajo declara un color dentro de un media query, para que los dos temas
+   funcionen igual tanto por preferencia del sistema como por elección
+   explícita (atributo data-theme, que usan las páginas que incrustan la app). */
 :root {
   color-scheme: light dark;
 
-  --verde: #0b3d2e;
+  --cabecera-fondo: #0b3d2e;
+  --cabecera-texto: #eafff4;
+  --cabecera-borde: transparent;
   --verde-claro: #1c7a5a;
   --acento: #14855f;
+  --sobre-acento: #ffffff;
 
   --fondo: #f2f4f2;
   --superficie: #ffffff;
@@ -20,11 +27,17 @@
   --seguro-inf: env(safe-area-inset-bottom, 0px);
 }
 
+/* Paleta oscura. Se repite en dos selectores a propósito: el media query cubre
+   la preferencia del sistema (salvo que se haya pedido el tema claro a mano) y
+   el atributo cubre la elección explícita. Si tocas uno, toca el otro. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --verde: #7ee7a8;
+  :root:not([data-theme="light"]) {
+    --cabecera-fondo: #17201c;
+    --cabecera-texto: #e8f0eb;
+    --cabecera-borde: #2b3831;
     --verde-claro: #7ee7a8;
     --acento: #5fd39a;
+    --sobre-acento: #0e1512;
     --fondo: #0e1512;
     --superficie: #17201c;
     --superficie-2: #1d2823;
@@ -34,6 +47,23 @@
     --error: #ff9b91;
     --sombra: none;
   }
+}
+
+:root[data-theme="dark"] {
+  --cabecera-fondo: #17201c;
+  --cabecera-texto: #e8f0eb;
+  --cabecera-borde: #2b3831;
+  --verde-claro: #7ee7a8;
+  --acento: #5fd39a;
+  --sobre-acento: #0e1512;
+  --fondo: #0e1512;
+  --superficie: #17201c;
+  --superficie-2: #1d2823;
+  --borde: #2b3831;
+  --texto: #e8f0eb;
+  --texto-suave: #9aada4;
+  --error: #ff9b91;
+  --sombra: none;
 }
 
 * { box-sizing: border-box; }
@@ -67,13 +97,11 @@ main > * { min-width: 0; }
 /* --- Cabecera ------------------------------------------------------------ */
 
 .cabecera {
-  background: var(--verde);
-  color: #eafff4;
+  background: var(--cabecera-fondo);
+  color: var(--cabecera-texto);
+  border-bottom: 1px solid var(--cabecera-borde);
   padding: calc(24px + env(safe-area-inset-top, 0px)) 16px 22px;
   margin-bottom: 16px;
-}
-@media (prefers-color-scheme: dark) {
-  .cabecera { background: #17201c; color: var(--texto); border-bottom: 1px solid var(--borde); }
 }
 .cabecera h1 { margin: 0; font-size: 1.45rem; letter-spacing: -.01em; }
 .cabecera p { margin: 4px 0 0; opacity: .75; font-size: .9rem; }
@@ -171,10 +199,7 @@ select {
   color: var(--texto-suave);
   cursor: pointer;
 }
-.segmentado input:checked + span { background: var(--acento); color: #fff; }
-@media (prefers-color-scheme: dark) {
-  .segmentado input:checked + span { color: #0e1512; }
-}
+.segmentado input:checked + span { background: var(--acento); color: var(--sobre-acento); }
 
 /* Desplegables */
 .desplegable summary {

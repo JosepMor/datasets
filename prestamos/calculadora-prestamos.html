@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de préstamos</title>
+<meta name="description" content="Cuadro de amortización de préstamos por el sistema francés, alemán o americano, con valor residual, carencia, comisiones y TAE.">
+<meta name="theme-color" content="#0b3d2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Préstamos">
+</head>
+<body>
+<style>
+/* Calculadora de préstamos — hoja de estilos única, pensada para iPhone. */
+
+/* Paleta clara. Todos los colores salen de estas variables: ninguna regla de
+   más abajo declara un color dentro de un media query, para que los dos temas
+   funcionen igual tanto por preferencia del sistema como por elección
+   explícita (atributo data-theme, que usan las páginas que incrustan la app). */
+:root {
+  color-scheme: light dark;
+
+  --cabecera-fondo: #0b3d2e;
+  --cabecera-texto: #eafff4;
+  --cabecera-borde: transparent;
+  --verde-claro: #1c7a5a;
+  --acento: #14855f;
+  --sobre-acento: #ffffff;
+
+  --fondo: #f2f4f2;
+  --superficie: #ffffff;
+  --superficie-2: #f7f9f7;
+  --borde: #dfe4e0;
+  --texto: #12211c;
+  --texto-suave: #5c6b64;
+  --error: #b3261e;
+
+  --radio: 16px;
+  --sombra: 0 1px 2px rgba(18, 33, 28, .06), 0 6px 20px rgba(18, 33, 28, .05);
+  --seguro-inf: env(safe-area-inset-bottom, 0px);
+}
+
+/* Paleta oscura. Se repite en dos selectores a propósito: el media query cubre
+   la preferencia del sistema (salvo que se haya pedido el tema claro a mano) y
+   el atributo cubre la elección explícita. Si tocas uno, toca el otro. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cabecera-fondo: #17201c;
+    --cabecera-texto: #e8f0eb;
+    --cabecera-borde: #2b3831;
+    --verde-claro: #7ee7a8;
+    --acento: #5fd39a;
+    --sobre-acento: #0e1512;
+    --fondo: #0e1512;
+    --superficie: #17201c;
+    --superficie-2: #1d2823;
+    --borde: #2b3831;
+    --texto: #e8f0eb;
+    --texto-suave: #9aada4;
+    --error: #ff9b91;
+    --sombra: none;
+  }
+}
+
+:root[data-theme="dark"] {
+  --cabecera-fondo: #17201c;
+  --cabecera-texto: #e8f0eb;
+  --cabecera-borde: #2b3831;
+  --verde-claro: #7ee7a8;
+  --acento: #5fd39a;
+  --sobre-acento: #0e1512;
+  --fondo: #0e1512;
+  --superficie: #17201c;
+  --superficie-2: #1d2823;
+  --borde: #2b3831;
+  --texto: #e8f0eb;
+  --texto-suave: #9aada4;
+  --error: #ff9b91;
+  --sombra: none;
+}
+
+* { box-sizing: border-box; }
+
+/* El atributo hidden debe ganar a los display de las reglas de más abajo. */
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 0 0 calc(24px + var(--seguro-inf));
+  background: var(--fondo);
+  color: var(--texto);
+  font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: grid;
+  /* minmax(0,1fr) impide que el cuadro de amortización, que es muy ancho,
+     estire la rejilla y desborde la pantalla en horizontal. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+main > * { min-width: 0; }
+
+/* --- Cabecera ------------------------------------------------------------ */
+
+.cabecera {
+  background: var(--cabecera-fondo);
+  color: var(--cabecera-texto);
+  border-bottom: 1px solid var(--cabecera-borde);
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 16px 22px;
+  margin-bottom: 16px;
+}
+.cabecera h1 { margin: 0; font-size: 1.45rem; letter-spacing: -.01em; }
+.cabecera p { margin: 4px 0 0; opacity: .75; font-size: .9rem; }
+
+/* --- Tarjetas ------------------------------------------------------------ */
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 16px;
+  box-shadow: var(--sombra);
+}
+.tarjeta > h2, .cabecera-tabla h2 {
+  margin: 0 0 14px;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--texto-suave);
+}
+
+/* --- Formulario ---------------------------------------------------------- */
+
+form { display: grid; gap: 16px; }
+.campo { display: grid; gap: 6px; margin-bottom: 14px; }
+.tarjeta > .campo:last-child, .contenido-desplegable > .campo:last-child { margin-bottom: 0; }
+.fila { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 460px) { .fila { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+
+label, .etiqueta { font-size: .82rem; font-weight: 600; color: var(--texto-suave); }
+
+input[type="text"], input[type="date"], select {
+  width: 100%;
+  /* 16px evita que Safari haga zoom al enfocar el campo. */
+  font: inherit;
+  font-size: 16px;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--superficie-2);
+  color: var(--texto);
+  appearance: none;
+  min-height: 46px;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+select {
+  background-image: linear-gradient(45deg, transparent 50%, var(--texto-suave) 50%),
+                    linear-gradient(135deg, var(--texto-suave) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+}
+
+.entrada-con-sufijo { position: relative; display: flex; align-items: center; }
+.entrada-con-sufijo input { padding-right: 52px; }
+.sufijo {
+  position: absolute;
+  right: 12px;
+  color: var(--texto-suave);
+  font-size: .88rem;
+  pointer-events: none;
+}
+
+.ayuda { margin: 2px 0 0; font-size: .8rem; color: var(--texto-suave); }
+.ayuda.destacada {
+  background: var(--superficie-2);
+  border-left: 3px solid var(--acento);
+  padding: 10px 12px;
+  border-radius: 0 8px 8px 0;
+}
+
+/* Selector segmentado */
+.segmentado {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 4px;
+}
+.segmentado label { margin: 0; position: relative; display: block; }
+.segmentado input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.segmentado span {
+  display: block;
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 9px;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+.segmentado input:checked + span { background: var(--acento); color: var(--sobre-acento); }
+
+/* Desplegables */
+.desplegable summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+.desplegable summary::-webkit-details-marker { display: none; }
+.desplegable summary h2 {
+  margin: 0;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--texto-suave);
+}
+.resumen-desplegable { font-size: .85rem; color: var(--texto); }
+.resumen-desplegable::after { content: " ›"; color: var(--texto-suave); }
+.desplegable[open] .resumen-desplegable::after { content: " ⌄"; }
+.contenido-desplegable { padding-top: 16px; }
+
+.errores {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--error) 12%, transparent);
+  color: var(--error);
+  font-size: .88rem;
+}
+
+/* --- Resultado ----------------------------------------------------------- */
+
+.cuota-principal { display: grid; gap: 2px; margin-bottom: 16px; }
+.etiqueta-cuota { font-size: .85rem; color: var(--texto-suave); }
+.cuota-principal strong {
+  font-size: 2.3rem;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: var(--verde-claro);
+}
+.matiz { font-size: .82rem; color: var(--texto-suave); }
+
+.magnitudes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--borde);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.magnitudes > div { background: var(--superficie); padding: 10px 12px; }
+.magnitudes dt { font-size: .74rem; color: var(--texto-suave); }
+.magnitudes dd { margin: 2px 0 0; font-size: 1rem; font-weight: 600; }
+
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 12px 16px;
+  min-height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--borde);
+  background: var(--superficie-2);
+  color: var(--texto);
+  cursor: pointer;
+  flex: 1 1 auto;
+}
+button.secundario:active { background: var(--borde); }
+button.enlace {
+  border: 0;
+  background: none;
+  color: var(--texto-suave);
+  padding: 4px;
+  min-height: 0;
+  font-size: .82rem;
+  text-decoration: underline;
+  flex: 0 0 auto;
+}
+
+/* --- Tablas -------------------------------------------------------------- */
+
+.cabecera-tabla {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.cabecera-tabla h2 { margin: 0; }
+.conmutador { display: flex; align-items: center; gap: 6px; font-size: .82rem; }
+.conmutador input { width: 18px; height: 18px; accent-color: var(--acento); }
+
+.contenedor-tabla {
+  overflow: auto;
+  max-height: 65vh;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+th, td { padding: 9px 8px; text-align: right; white-space: nowrap; }
+@media (max-width: 460px) { table { font-size: .8rem; } th, td { padding: 8px 6px; } }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  z-index: 1;
+  border-bottom: 1px solid var(--borde);
+}
+tbody tr:nth-child(even) { background: var(--superficie-2); }
+
+/* La columna del número de cuota se queda fija al desplazar en horizontal. */
+th:first-child, td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+}
+tbody tr:nth-child(even) td:first-child { background: var(--superficie-2); }
+thead th:first-child, tfoot td:first-child { background: var(--superficie-2); z-index: 2; }
+.pista-tabla { margin-top: 8px; }
+tbody tr.carencia td { color: var(--texto-suave); font-style: italic; }
+tbody tr.balon { font-weight: 700; }
+tbody tr.balon td:first-child::after { content: " ●"; color: var(--acento); }
+tbody tr.anual { font-weight: 600; }
+tfoot td {
+  position: sticky;
+  bottom: 0;
+  background: var(--superficie-2);
+  font-weight: 700;
+  border-top: 1px solid var(--borde);
+}
+.vacio { padding: 20px; text-align: center; color: var(--texto-suave); font-size: .88rem; }
+
+#tabla-escenarios td:last-child, #tabla-escenarios th:last-child { text-align: right; }
+#tabla-escenarios button { padding: 6px 10px; min-height: 0; font-size: .78rem; flex: 0 0 auto; }
+.acciones-fila { display: flex; gap: 6px; justify-content: flex-end; }
+
+.pie { color: var(--texto-suave); font-size: .76rem; padding: 0 4px; }
+.pie p { margin: 0 0 6px; }
+
+.oculto-visual {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cuota-principal strong { transition: color .2s ease; }
+}
+
+</style>
+
+<header class="cabecera">
+  <h1>Calculadora de préstamos</h1>
+  <p>Francés · Alemán · Americano</p>
+</header>
+
+<main>
+  <form id="formulario" novalidate>
+
+    <section class="tarjeta">
+      <h2>Datos del préstamo</h2>
+
+      <div class="campo">
+        <label for="capital">Importe del préstamo</label>
+        <div class="entrada-con-sufijo">
+          <input id="capital" name="capital" type="text" inputmode="decimal" value="150.000" autocomplete="off" enterkeyhint="done">
+          <span class="sufijo">€</span>
+        </div>
+      </div>
+
+      <div class="campo">
+        <span class="etiqueta">Sistema de amortización</span>
+        <div class="segmentado" role="radiogroup" aria-label="Sistema de amortización">
+          <label><input type="radio" name="sistema" value="frances" checked><span>Francés</span></label>
+          <label><input type="radio" name="sistema" value="aleman"><span>Alemán</span></label>
+          <label><input type="radio" name="sistema" value="americano"><span>Americano</span></label>
+        </div>
+        <p class="ayuda" id="ayuda-sistema"></p>
+      </div>
+
+      <div class="fila">
+        <div class="campo">
+          <label for="anos">Plazo</label>
+          <div class="entrada-con-sufijo">
+            <input id="anos" name="anos" type="text" inputmode="decimal" value="10" autocomplete="off">
+            <span class="sufijo">años</span>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="frecuencia">Periodicidad del pago</label>
+          <select id="frecuencia" name="frecuencia">
+            <option value="mensual" selected>Mensual</option>
+            <option value="trimestral">Trimestral</option>
+            <option value="semestral">Semestral</option>
+            <option value="anual">Anual</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fila">
+        <div class="campo">
+          <label for="tipoAnual">Tipo de interés anual</label>
+          <div class="entrada-con-sufijo">
+            <input id="tipoAnual" name="tipoAnual" type="text" inputmode="decimal" value="3,5" autocomplete="off">
+            <span class="sufijo">%</span>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="convencion">Se interpreta como</label>
+          <select id="convencion" name="convencion">
+            <option value="nominal" selected>Nominal (TIN ÷ periodos)</option>
+            <option value="efectivo">Efectivo (tasa equivalente)</option>
+          </select>
+        </div>
+      </div>
+      <p class="ayuda" id="ayuda-convencion"></p>
+
+      <div class="campo" id="campo-residual">
+        <label for="residual">Valor residual / pago balón</label>
+        <div class="entrada-con-sufijo">
+          <input id="residual" name="residual" type="text" inputmode="decimal" value="0" autocomplete="off">
+          <span class="sufijo">€</span>
+        </div>
+        <p class="ayuda">Importe que queda pendiente y se paga de una vez con la última cuota. Déjalo a 0 si no hay balón.</p>
+      </div>
+
+      <div class="campo" id="aviso-americano" hidden>
+        <p class="ayuda destacada">En el sistema americano el valor residual es todo el principal: solo se pagan intereses y el capital se devuelve íntegro al vencimiento.</p>
+      </div>
+
+      <div class="campo">
+        <label for="fechaInicio">Fecha de la primera cuota</label>
+        <input id="fechaInicio" name="fechaInicio" type="date">
+      </div>
+    </section>
+
+    <details class="tarjeta desplegable" id="bloque-carencia">
+      <summary><h2>Carencia inicial</h2><span class="resumen-desplegable" id="etiqueta-carencia">Sin carencia</span></summary>
+      <div class="contenido-desplegable">
+        <div class="fila">
+          <div class="campo">
+            <label for="carencia">Cuotas en carencia</label>
+            <input id="carencia" name="carencia" type="text" inputmode="numeric" value="0" autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="tipoCarencia">Tipo de carencia</label>
+            <select id="tipoCarencia" name="tipoCarencia">
+              <option value="parcial" selected>Parcial (solo intereses)</option>
+              <option value="total">Total (los intereses se capitalizan)</option>
+            </select>
+          </div>
+        </div>
+        <p class="ayuda">En la carencia parcial pagas solo los intereses y la deuda no baja. En la total no pagas nada y los intereses se suman al capital pendiente.</p>
+      </div>
+    </details>
+
+    <details class="tarjeta desplegable" id="bloque-gastos">
+      <summary><h2>Comisiones y gastos</h2><span class="resumen-desplegable" id="etiqueta-gastos">Sin gastos</span></summary>
+      <div class="contenido-desplegable">
+        <div class="fila">
+          <div class="campo">
+            <label for="comisionAperturaPct">Comisión de apertura</label>
+            <div class="entrada-con-sufijo">
+              <input id="comisionAperturaPct" name="comisionAperturaPct" type="text" inputmode="decimal" value="0" autocomplete="off">
+              <span class="sufijo">%</span>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="gastosIniciales">Otros gastos iniciales</label>
+            <div class="entrada-con-sufijo">
+              <input id="gastosIniciales" name="gastosIniciales" type="text" inputmode="decimal" value="0" autocomplete="off">
+              <span class="sufijo">€</span>
+            </div>
+          </div>
+        </div>
+        <p class="ayuda">Se descuentan del importe recibido para calcular la TAE real (tasación, notaría, corretaje…).</p>
+      </div>
+    </details>
+
+    <p class="errores" id="errores" role="alert" hidden></p>
+  </form>
+
+  <section class="tarjeta resultado" id="resultado" aria-live="polite">
+    <h2>Resultado</h2>
+    <div class="cuota-principal">
+      <span class="etiqueta-cuota" id="etiqueta-cuota">Cuota mensual</span>
+      <strong id="cuota-valor">—</strong>
+      <span class="matiz" id="cuota-matiz"></span>
+    </div>
+    <dl class="magnitudes">
+      <div><dt>Intereses totales</dt><dd id="m-intereses">—</dd></div>
+      <div><dt>Coste total del crédito</dt><dd id="m-coste">—</dd></div>
+      <div><dt>Total desembolsado</dt><dd id="m-total">—</dd></div>
+      <div><dt>Nº de cuotas</dt><dd id="m-cuotas">—</dd></div>
+      <div><dt>TAE real</dt><dd id="m-tae">—</dd></div>
+      <div><dt>Tasa por periodo</dt><dd id="m-tasa">—</dd></div>
+    </dl>
+    <div class="acciones">
+      <button type="button" id="btn-guardar" class="secundario">Guardar escenario</button>
+      <button type="button" id="btn-csv" class="secundario">Descargar CSV</button>
+      <button type="button" id="btn-compartir" class="secundario" hidden>Compartir</button>
+    </div>
+    <p class="ayuda" id="estado-acciones" role="status"></p>
+  </section>
+
+  <section class="tarjeta" id="bloque-cuadro">
+    <div class="cabecera-tabla">
+      <h2>Cuadro de amortización</h2>
+      <label class="conmutador"><input type="checkbox" id="agrupar-anual"><span>Ver por años</span></label>
+    </div>
+    <div class="contenedor-tabla" id="contenedor-cuadro">
+      <table id="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Nº</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Cuota €</th>
+            <th scope="col">Intereses €</th>
+            <th scope="col">Capital €</th>
+            <th scope="col">Pendiente €</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+        <tfoot id="pie-tabla"></tfoot>
+      </table>
+    </div>
+    <p class="ayuda pista-tabla" id="pista-tabla" hidden>Desliza la tabla hacia la izquierda para ver el capital amortizado y el saldo pendiente.</p>
+  </section>
+
+  <section class="tarjeta" id="bloque-escenarios" hidden>
+    <div class="cabecera-tabla">
+      <h2>Escenarios guardados</h2>
+      <button type="button" id="btn-borrar-todo" class="enlace">Borrar todos</button>
+    </div>
+    <div class="contenedor-tabla">
+      <table id="tabla-escenarios">
+        <thead>
+          <tr>
+            <th scope="col">Escenario</th>
+            <th scope="col">Cuota</th>
+            <th scope="col">Intereses</th>
+            <th scope="col">Coste total</th>
+            <th scope="col">TAE</th>
+            <th scope="col"><span class="oculto-visual">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-escenarios"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="pie">
+    <p>Los cálculos son orientativos y no constituyen una oferta financiera. Los importes reales de tu entidad pueden variar según la base de cálculo de días y otros gastos.</p>
+    <p id="estado-offline"></p>
+  </footer>
+</main>
+
+<script type="module">
+/* ---- finanzas.js ---- */
+/**
+ * Motor de cálculo financiero de préstamos.
+ *
+ * Sistemas soportados:
+ *   - frances    : cuota total constante (capital creciente, intereses decrecientes)
+ *   - aleman     : cuota de capital constante (cuota total decreciente)
+ *   - americano  : solo intereses cada periodo y devolución del principal al vencimiento
+ *
+ * Admite valor residual (pago balón) en francés y alemán, carencia inicial
+ * parcial (solo intereses) o total (los intereses se capitalizan), comisión de
+ * apertura y gastos iniciales, con cálculo de la TAE real.
+ *
+ * Módulo puro: sin dependencias y sin acceso al DOM, para poder probarlo con
+ * `node --test`.
+ */
+
+const FRECUENCIAS = {
+  mensual: { periodosPorAno: 12, meses: 1, etiqueta: 'Mensual' },
+  trimestral: { periodosPorAno: 4, meses: 3, etiqueta: 'Trimestral' },
+  semestral: { periodosPorAno: 2, meses: 6, etiqueta: 'Semestral' },
+  anual: { periodosPorAno: 1, meses: 12, etiqueta: 'Anual' },
+};
+
+const SISTEMAS = {
+  frances: 'Francés (cuota constante)',
+  aleman: 'Alemán (capital constante)',
+  americano: 'Americano (solo intereses)',
+};
+
+/** Redondeo a céntimos evitando los errores clásicos de coma flotante. */
+function r2(x) {
+  return Math.round((x + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Convierte el tipo de interés anual en la tasa del periodo de pago.
+ *
+ * - `nominal`: convención bancaria española. TIN / número de periodos.
+ *   6 % anual con pago trimestral -> 1,5 % por trimestre.
+ * - `efectivo`: el tipo introducido es una tasa anual efectiva (TAE) y se
+ *   busca la tasa periódica equivalente.
+ *   6 % anual con pago trimestral -> (1,06)^(1/4) - 1 = 1,4674 % por trimestre.
+ */
+function tasaPeriodica(tipoAnualPct, periodosPorAno, convencion = 'nominal') {
+  const t = tipoAnualPct / 100;
+  if (convencion === 'efectivo') return Math.pow(1 + t, 1 / periodosPorAno) - 1;
+  return t / periodosPorAno;
+}
+
+/** Tasa anual efectiva equivalente a una tasa periódica. */
+function tasaAnualEfectiva(tasaPeriodo, periodosPorAno) {
+  return Math.pow(1 + tasaPeriodo, periodosPorAno) - 1;
+}
+
+/**
+ * Cuota constante (sistema francés) que amortiza `saldo` en `n` periodos
+ * dejando pendiente un valor residual `residual` al vencimiento.
+ *
+ *   saldo = cuota · a(n,i) + residual · (1+i)^-n
+ */
+function cuotaFrancesa(saldo, tasa, n, residual = 0) {
+  if (n <= 0) return 0;
+  if (tasa === 0) return (saldo - residual) / n;
+  const v = Math.pow(1 + tasa, -n);
+  return ((saldo - residual * v) * tasa) / (1 - v);
+}
+
+/** Rejilla de tasas donde buscar el cambio de signo del VAN. */
+const REJILLA_TIR = [
+  -0.99, -0.95, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05,
+  -0.02, -0.005, 0, 0.005, 0.02, 0.05, 0.1, 0.2, 0.35, 0.5, 1, 2, 5, 10,
+];
+
+/**
+ * Tasa interna de rentabilidad de una serie de flujos `flujos[k]` situados en
+ * el periodo k (k = 0 es hoy).
+ *
+ * Primero se recorre una rejilla para acotar el primer cambio de signo y luego
+ * se bisecciona ese intervalo. Es más lento que Newton pero no diverge, y en
+ * plazos largos evita el desbordamiento a infinito que produce evaluar el VAN
+ * en tasas cercanas a -100 %.
+ * Devuelve `null` si no encuentra ningún cambio de signo.
+ */
+function tir(flujos, iteraciones = 200) {
+  const van = (r) => flujos.reduce((acc, f, k) => acc + f / Math.pow(1 + r, k), 0);
+
+  let lo = null;
+  let hi = null;
+  let vLo = 0;
+  let vHi = 0;
+  let anterior = null;
+  for (const r of REJILLA_TIR) {
+    const v = van(r);
+    if (!isFinite(v)) continue;
+    if (v === 0) return r;
+    if (anterior && anterior.v * v < 0) {
+      lo = anterior.r;
+      vLo = anterior.v;
+      hi = r;
+      vHi = v;
+      break;
+    }
+    anterior = { r, v };
+  }
+  if (lo === null) return null;
+
+  for (let k = 0; k < iteraciones; k++) {
+    const medio = (lo + hi) / 2;
+    const vMedio = van(medio);
+    if (vMedio === 0) return medio;
+    if (vLo * vMedio < 0) {
+      hi = medio;
+      vHi = vMedio;
+    } else {
+      lo = medio;
+      vLo = vMedio;
+    }
+  }
+  return (lo + hi) / 2;
+}
+
+/** Suma `meses` a una fecha ajustando el día si el mes destino es más corto. */
+function sumarMeses(fecha, meses) {
+  const d = new Date(fecha.getTime());
+  const dia = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + meses);
+  const ultimoDia = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(dia, ultimoDia));
+  return d;
+}
+
+/**
+ * Comprueba los datos de entrada. Devuelve un array de mensajes de error
+ * (vacío si todo es correcto).
+ */
+function validar(p) {
+  const errores = [];
+  const capital = Number(p.capital);
+  const tipoAnual = Number(p.tipoAnual);
+  const anos = Number(p.anos);
+  const residual = Number(p.residual || 0);
+  const carencia = Number(p.carencia || 0);
+
+  if (!(capital > 0)) errores.push('El importe del préstamo debe ser mayor que cero.');
+  if (!isFinite(tipoAnual) || tipoAnual < 0) errores.push('El tipo de interés no puede ser negativo.');
+  if (tipoAnual > 100) errores.push('El tipo de interés debe expresarse en porcentaje (por ejemplo 3,5).');
+  if (!(anos > 0)) errores.push('El plazo debe ser mayor que cero.');
+  if (!FRECUENCIAS[p.frecuencia]) errores.push('Periodicidad de pago no válida.');
+  if (!SISTEMAS[p.sistema]) errores.push('Sistema de amortización no válido.');
+
+  if (FRECUENCIAS[p.frecuencia] && anos > 0) {
+    const n = Math.round(anos * FRECUENCIAS[p.frecuencia].periodosPorAno);
+    if (n < 1) errores.push('El plazo es demasiado corto para la periodicidad elegida: no llega a una cuota.');
+    if (carencia < 0 || !Number.isFinite(carencia)) errores.push('La carencia no puede ser negativa.');
+    if (carencia >= n) errores.push('La carencia debe ser menor que el número total de cuotas.');
+  }
+
+  if (p.sistema !== 'americano') {
+    if (residual < 0) errores.push('El valor residual no puede ser negativo.');
+    if (capital > 0 && residual >= capital) {
+      errores.push('El valor residual debe ser menor que el importe del préstamo.');
+    }
+  }
+  return errores;
+}
+
+/**
+ * Calcula el cuadro de amortización completo.
+ *
+ * Parámetros esperados:
+ *   capital, tipoAnual (%), convencion ('nominal'|'efectivo'),
+ *   sistema ('frances'|'aleman'|'americano'), frecuencia (clave de FRECUENCIAS),
+ *   anos, residual, carencia (nº de periodos), tipoCarencia ('parcial'|'total'),
+ *   comisionAperturaPct, gastosIniciales, fechaInicio (Date | string ISO).
+ */
+function calcular(p) {
+  const errores = validar(p);
+  if (errores.length) throw new Error(errores.join(' '));
+
+  const frec = FRECUENCIAS[p.frecuencia];
+  const periodosPorAno = frec.periodosPorAno;
+  const capital = Number(p.capital);
+  const n = Math.round(Number(p.anos) * periodosPorAno);
+  const tasa = tasaPeriodica(Number(p.tipoAnual), periodosPorAno, p.convencion);
+  const carencia = Math.min(Math.max(Math.round(Number(p.carencia || 0)), 0), n - 1);
+  const tipoCarencia = p.tipoCarencia === 'total' ? 'total' : 'parcial';
+  // En el sistema americano el "valor residual" es, por definición, todo el principal.
+  const residual = p.sistema === 'americano' ? 0 : Number(p.residual || 0);
+
+  const fechaInicio = p.fechaInicio ? new Date(p.fechaInicio) : null;
+  const fechaCuota = (k) =>
+    fechaInicio && !isNaN(fechaInicio) ? sumarMeses(fechaInicio, frec.meses * (k - 1)) : null;
+
+  const filas = [];
+  let saldo = r2(capital);
+
+  // --- Fase de carencia -----------------------------------------------------
+  for (let k = 1; k <= carencia; k++) {
+    const interes = r2(saldo * tasa);
+    const saldoInicial = saldo;
+    let cuota;
+    let amortizado;
+    if (tipoCarencia === 'total') {
+      // No se paga nada: el interés se capitaliza y engorda la deuda.
+      cuota = 0;
+      amortizado = r2(-interes);
+      saldo = r2(saldo + interes);
+    } else {
+      cuota = interes;
+      amortizado = 0;
+    }
+    filas.push({
+      periodo: k,
+      fecha: fechaCuota(k),
+      fase: `carencia-${tipoCarencia}`,
+      saldoInicial,
+      cuota,
+      interes,
+      capital: amortizado,
+      balon: 0,
+      saldoFinal: saldo,
+    });
+  }
+
+  // --- Fase de amortización -------------------------------------------------
+  const m = n - carencia;
+  const saldoTrasCarencia = saldo;
+
+  if (p.sistema !== 'americano' && residual >= saldoTrasCarencia) {
+    throw new Error(
+      'Tras la carencia el valor residual sería igual o mayor que la deuda pendiente: el préstamo no llegaría a amortizarse.'
+    );
+  }
+
+  let cuotaTeorica = 0;
+  let capitalFijo = 0;
+  if (p.sistema === 'frances') {
+    cuotaTeorica = cuotaFrancesa(saldoTrasCarencia, tasa, m, residual);
+  } else if (p.sistema === 'aleman') {
+    capitalFijo = (saldoTrasCarencia - residual) / m;
+  }
+
+  for (let j = 1; j <= m; j++) {
+    const k = carencia + j;
+    const ultima = j === m;
+    const saldoInicial = saldo;
+    const interes = r2(saldo * tasa);
+    let amortizado;
+
+    if (p.sistema === 'americano') {
+      amortizado = 0;
+    } else if (p.sistema === 'frances') {
+      amortizado = r2(r2(cuotaTeorica) - interes);
+    } else {
+      amortizado = r2(capitalFijo);
+    }
+
+    // La última cuota absorbe los redondeos acumulados y deja el saldo en el
+    // valor residual pactado.
+    if (ultima) amortizado = r2(saldo - (p.sistema === 'americano' ? saldo : residual));
+    if (amortizado > saldo) amortizado = saldo;
+
+    const balon = ultima ? r2(p.sistema === 'americano' ? saldo - amortizado : residual) : 0;
+    saldo = r2(saldo - amortizado - balon);
+
+    filas.push({
+      periodo: k,
+      fecha: fechaCuota(k),
+      fase: ultima && balon > 0 ? 'balon' : 'amortizacion',
+      saldoInicial,
+      cuota: r2(interes + amortizado + balon),
+      interes,
+      capital: r2(amortizado + balon),
+      balon,
+      saldoFinal: saldo,
+    });
+  }
+
+  // --- Resumen --------------------------------------------------------------
+  const totalIntereses = r2(filas.reduce((s, f) => s + f.interes, 0));
+  const totalCuotas = r2(filas.reduce((s, f) => s + f.cuota, 0));
+  const comisionApertura = r2((capital * Number(p.comisionAperturaPct || 0)) / 100);
+  const gastosIniciales = r2(Number(p.gastosIniciales || 0));
+  const gastosTotales = r2(comisionApertura + gastosIniciales);
+
+  const cuotasAmortizacion = filas.filter((f) => f.fase !== 'carencia-total');
+  const importes = cuotasAmortizacion.map((f) => f.cuota);
+  const cuotaPrimera = importes.length ? importes[0] : 0;
+  const cuotaUltima = importes.length ? importes[importes.length - 1] : 0;
+  const cuotaMinima = importes.length ? Math.min(...importes) : 0;
+  const cuotaMaxima = importes.length ? Math.max(...importes) : 0;
+
+  // TAE real: se recibe el capital menos los gastos y se devuelven las cuotas.
+  const flujos = [r2(capital - gastosTotales)];
+  for (const f of filas) flujos.push(-f.cuota);
+  const tirPeriodica = tir(flujos);
+  const taeReal = tirPeriodica === null ? null : tasaAnualEfectiva(tirPeriodica, periodosPorAno);
+
+  return {
+    parametros: {
+      ...p,
+      capital,
+      residual,
+      carencia,
+      tipoCarencia,
+      periodos: n,
+      periodosPorAno,
+      m,
+    },
+    resumen: {
+      tasaPeriodica: tasa,
+      periodos: n,
+      periodosPorAno,
+      cuotaPrimera,
+      cuotaUltima,
+      cuotaMinima,
+      cuotaMaxima,
+      cuotaConstante: p.sistema === 'frances' && carencia === 0,
+      totalIntereses,
+      totalCuotas,
+      comisionApertura,
+      gastosIniciales,
+      gastosTotales,
+      costeTotal: r2(totalIntereses + gastosTotales),
+      totalDesembolsado: r2(totalCuotas + gastosTotales),
+      valorResidual: p.sistema === 'americano' ? capital : residual,
+      taeSinGastos: tasaAnualEfectiva(tasa, periodosPorAno),
+      taeReal,
+    },
+    filas,
+  };
+}
+
+/* ---- app.js ---- */
+/**
+ * Interfaz de la calculadora de préstamos.
+ * Toda la aritmética vive en finanzas.js; aquí solo hay entrada/salida.
+ */
+
+
+const $ = (id) => document.getElementById(id);
+const CLAVE_ESCENARIOS = 'prestamos:escenarios:v1';
+const CLAVE_ULTIMO = 'prestamos:ultimo:v1';
+
+const fmtMoneda = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+const fmtMonedaCorta = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+  maximumFractionDigits: 0,
+});
+const fmtFecha = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+// En el cuadro de amortización el símbolo € va en la cabecera: así caben más
+// columnas en la pantalla de un móvil.
+const fmtImporte = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const dinero = (x) => fmtMoneda.format(x || 0);
+const importe = (x) => fmtImporte.format(x || 0);
+const porcentaje = (x, dec = 3) =>
+  x === null || x === undefined || !isFinite(x)
+    ? '—'
+    : `${(x * 100).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec })} %`;
+
+/**
+ * Interpreta un número escrito a la española (1.234,56) o a la inglesa
+ * (1,234.56). Si aparecen los dos separadores, manda el último.
+ */
+function numero(valor) {
+  if (typeof valor === 'number') return valor;
+  let s = String(valor ?? '').trim().replace(/[\s€%]/g, '');
+  if (!s) return 0;
+  const coma = s.lastIndexOf(',');
+  const punto = s.lastIndexOf('.');
+  if (coma > -1 && punto > -1) {
+    const decimal = coma > punto ? ',' : '.';
+    const miles = decimal === ',' ? '.' : ',';
+    s = s.split(miles).join('').replace(decimal, '.');
+  } else if (coma > -1) {
+    // Una sola coma: decimal, salvo que separe grupos de tres (1,234).
+    s = /,\d{3}$/.test(s) && s.length > 4 ? s.replace(',', '') : s.replace(',', '.');
+  } else if (punto > -1) {
+    s = /\.\d{3}$/.test(s) && s.length > 4 ? s.replace('.', '') : s;
+  }
+  const n = Number(s);
+  return isFinite(n) ? n : NaN;
+}
+
+const CAMPOS = [
+  'capital', 'anos', 'tipoAnual', 'convencion', 'frecuencia', 'residual',
+  'carencia', 'tipoCarencia', 'comisionAperturaPct', 'gastosIniciales', 'fechaInicio',
+];
+
+let ultimoResultado = null;
+
+function leerFormulario() {
+  const sistema = document.querySelector('input[name="sistema"]:checked').value;
+  return {
+    sistema,
+    capital: numero($('capital').value),
+    anos: numero($('anos').value),
+    tipoAnual: numero($('tipoAnual').value),
+    convencion: $('convencion').value,
+    frecuencia: $('frecuencia').value,
+    residual: sistema === 'americano' ? 0 : numero($('residual').value),
+    carencia: Math.round(numero($('carencia').value)) || 0,
+    tipoCarencia: $('tipoCarencia').value,
+    comisionAperturaPct: numero($('comisionAperturaPct').value),
+    gastosIniciales: numero($('gastosIniciales').value),
+    fechaInicio: $('fechaInicio').value || null,
+  };
+}
+
+function escribirFormulario(p) {
+  const marcar = document.querySelector(`input[name="sistema"][value="${p.sistema}"]`);
+  if (marcar) marcar.checked = true;
+  $('capital').value = p.capital?.toLocaleString('es-ES') ?? '';
+  $('anos').value = String(p.anos ?? '').replace('.', ',');
+  $('tipoAnual').value = String(p.tipoAnual ?? '').replace('.', ',');
+  $('convencion').value = p.convencion || 'nominal';
+  $('frecuencia').value = p.frecuencia || 'mensual';
+  $('residual').value = (p.residual || 0).toLocaleString('es-ES');
+  $('carencia').value = p.carencia || 0;
+  $('tipoCarencia').value = p.tipoCarencia || 'parcial';
+  $('comisionAperturaPct').value = String(p.comisionAperturaPct || 0).replace('.', ',');
+  $('gastosIniciales').value = (p.gastosIniciales || 0).toLocaleString('es-ES');
+  if (p.fechaInicio) $('fechaInicio').value = String(p.fechaInicio).slice(0, 10);
+}
+
+/* --- Ayudas contextuales -------------------------------------------------- */
+
+const EXPLICACION = {
+  frances: 'Pagas siempre lo mismo. Al principio casi todo son intereses y el capital se amortiza despacio.',
+  aleman: 'Amortizas la misma cantidad de capital cada periodo, así que la cuota empieza alta y va bajando.',
+  americano: 'Solo pagas intereses durante toda la vida del préstamo y devuelves el capital de golpe al final.',
+};
+
+function actualizarAyudas(p) {
+  $('ayuda-sistema').textContent = EXPLICACION[p.sistema];
+
+  const esAmericano = p.sistema === 'americano';
+  $('campo-residual').hidden = esAmericano;
+  $('aviso-americano').hidden = !esAmericano;
+
+  const pxa = FRECUENCIAS[p.frecuencia]?.periodosPorAno ?? 12;
+  const tasa = p.convencion === 'efectivo'
+    ? Math.pow(1 + p.tipoAnual / 100, 1 / pxa) - 1
+    : p.tipoAnual / 100 / pxa;
+  $('ayuda-convencion').textContent =
+    p.convencion === 'efectivo'
+      ? `El ${String(p.tipoAnual).replace('.', ',')} % se toma como tasa anual efectiva: equivale a ${porcentaje(tasa)} por periodo.`
+      : `El ${String(p.tipoAnual).replace('.', ',')} % se divide entre ${pxa} periodo${pxa > 1 ? 's' : ''}: ${porcentaje(tasa)} por periodo (convención bancaria).`;
+
+  $('etiqueta-carencia').textContent = p.carencia > 0
+    ? `${p.carencia} cuota${p.carencia > 1 ? 's' : ''} · ${p.tipoCarencia === 'total' ? 'total' : 'solo intereses'}`
+    : 'Sin carencia';
+
+  const gastos = (p.capital * p.comisionAperturaPct) / 100 + p.gastosIniciales;
+  $('etiqueta-gastos').textContent = gastos > 0 ? fmtMonedaCorta.format(gastos) : 'Sin gastos';
+}
+
+/* --- Pintado del resultado ------------------------------------------------ */
+
+const NOMBRE_CUOTA = { mensual: 'mensual', trimestral: 'trimestral', semestral: 'semestral', anual: 'anual' };
+
+function pintarResumen(res, p) {
+  const r = res.resumen;
+  $('etiqueta-cuota').textContent = `Cuota ${NOMBRE_CUOTA[p.frecuencia]}`;
+  $('cuota-valor').textContent = dinero(r.cuotaPrimera);
+
+  const matices = [];
+  if (p.sistema === 'aleman') {
+    matices.push(`decreciente hasta ${dinero(res.filas.at(-1).cuota - res.filas.at(-1).balon)}`);
+  }
+  if (p.carencia > 0) {
+    matices.push(
+      p.tipoCarencia === 'total'
+        ? `tras ${p.carencia} cuota${p.carencia > 1 ? 's' : ''} sin pagar`
+        : `las ${p.carencia} primeras, solo intereses`
+    );
+  }
+  if (r.valorResidual > 0) {
+    matices.push(`más un pago final de ${dinero(r.valorResidual)}`);
+  }
+  $('cuota-matiz').textContent = matices.length ? matices.join(' · ') : '';
+
+  $('m-intereses').textContent = dinero(r.totalIntereses);
+  $('m-coste').textContent = dinero(r.costeTotal);
+  $('m-total').textContent = dinero(r.totalDesembolsado);
+  $('m-cuotas').textContent = String(r.periodos);
+  $('m-tae').textContent = porcentaje(r.taeReal, 2);
+  $('m-tasa').textContent = porcentaje(r.tasaPeriodica);
+}
+
+function filaHTML(celdas, clase) {
+  const tr = document.createElement('tr');
+  if (clase) tr.className = clase;
+  for (const c of celdas) {
+    const td = document.createElement('td');
+    td.textContent = c;
+    tr.appendChild(td);
+  }
+  return tr;
+}
+
+function pintarTabla(res) {
+  const cuerpo = $('cuerpo-tabla');
+  const pie = $('pie-tabla');
+  cuerpo.textContent = '';
+  pie.textContent = '';
+  const agrupar = $('agrupar-anual').checked;
+  const pxa = res.resumen.periodosPorAno;
+  const fecha = (d) => (d ? fmtFecha.format(new Date(d)) : '—');
+
+  if (agrupar && pxa > 1) {
+    for (let inicio = 0; inicio < res.filas.length; inicio += pxa) {
+      const grupo = res.filas.slice(inicio, inicio + pxa);
+      const ultima = grupo.at(-1);
+      cuerpo.appendChild(
+        filaHTML([
+          `Año ${inicio / pxa + 1}`,
+          fecha(ultima.fecha),
+          importe(grupo.reduce((s, f) => s + f.cuota, 0)),
+          importe(grupo.reduce((s, f) => s + f.interes, 0)),
+          importe(grupo.reduce((s, f) => s + f.capital, 0)),
+          importe(ultima.saldoFinal),
+        ], 'anual')
+      );
+    }
+  } else {
+    for (const f of res.filas) {
+      const clase = f.fase.startsWith('carencia') ? 'carencia' : f.fase === 'balon' ? 'balon' : '';
+      cuerpo.appendChild(
+        filaHTML([
+          String(f.periodo),
+          fecha(f.fecha),
+          importe(f.cuota),
+          importe(f.interes),
+          importe(f.capital),
+          importe(f.saldoFinal),
+        ], clase)
+      );
+    }
+  }
+
+  const contenedor = $('contenedor-cuadro');
+  $('pista-tabla').hidden = $('tabla').scrollWidth <= contenedor.clientWidth;
+
+  pie.appendChild(
+    filaHTML([
+      'Total',
+      '',
+      importe(res.resumen.totalCuotas),
+      importe(res.resumen.totalIntereses),
+      importe(res.parametros.capital),
+      importe(0),
+    ])
+  );
+}
+
+function mostrarErrores(lista) {
+  const caja = $('errores');
+  caja.hidden = lista.length === 0;
+  caja.textContent = lista.join(' ');
+  $('resultado').style.opacity = lista.length ? '.4' : '1';
+  $('bloque-cuadro').style.opacity = lista.length ? '.4' : '1';
+}
+
+function recalcular() {
+  avisar('');
+  const p = leerFormulario();
+  actualizarAyudas(p);
+
+  const errores = validar(p);
+  if (errores.length) {
+    mostrarErrores(errores);
+    return;
+  }
+  try {
+    const res = calcular(p);
+    ultimoResultado = res;
+    mostrarErrores([]);
+    pintarResumen(res, p);
+    pintarTabla(res);
+    try {
+      localStorage.setItem(CLAVE_ULTIMO, JSON.stringify(p));
+    } catch { /* almacenamiento no disponible (modo privado) */ }
+  } catch (e) {
+    mostrarErrores([e.message]);
+  }
+}
+
+/* --- Exportar y compartir ------------------------------------------------- */
+
+function csv(res) {
+  const dec = (x) => (x ?? 0).toFixed(2).replace('.', ',');
+  const p = res.parametros;
+  const lineas = [
+    ['Sistema', SISTEMAS[p.sistema]],
+    ['Importe', dec(p.capital)],
+    ['Tipo anual (%)', String(p.tipoAnual).replace('.', ',')],
+    ['Convención', p.convencion === 'efectivo' ? 'Efectivo (tasa equivalente)' : 'Nominal (TIN / periodos)'],
+    ['Periodicidad', FRECUENCIAS[p.frecuencia].etiqueta],
+    ['Nº de cuotas', String(res.resumen.periodos)],
+    ['Carencia', p.carencia ? `${p.carencia} (${p.tipoCarencia})` : 'No'],
+    ['Valor residual', dec(res.resumen.valorResidual)],
+    ['Gastos iniciales', dec(res.resumen.gastosTotales)],
+    ['Intereses totales', dec(res.resumen.totalIntereses)],
+    ['Coste total del crédito', dec(res.resumen.costeTotal)],
+    ['TAE real (%)', dec((res.resumen.taeReal ?? 0) * 100)],
+    [],
+    ['Nº', 'Fecha', 'Cuota', 'Intereses', 'Capital', 'Pendiente'],
+  ].map((f) => f.join(';'));
+
+  for (const f of res.filas) {
+    lineas.push([
+      f.periodo,
+      f.fecha ? fmtFecha.format(new Date(f.fecha)) : '',
+      dec(f.cuota),
+      dec(f.interes),
+      dec(f.capital),
+      dec(f.saldoFinal),
+    ].join(';'));
+  }
+  return '﻿' + lineas.join('\r\n');
+}
+
+function nombreFichero(res) {
+  const p = res.parametros;
+  return `prestamo-${p.sistema}-${Math.round(p.capital)}-${p.frecuencia}.csv`;
+}
+
+function avisar(mensaje) {
+  $('estado-acciones').textContent = mensaje;
+}
+
+const AVISOS_DESCARGA = {
+  declined: '',
+  rate_limited: 'Hay otra descarga en curso. Espera un momento y vuelve a intentarlo.',
+  too_large: 'El cuadro es demasiado grande para descargarlo desde aquí.',
+};
+
+/**
+ * Descarga el cuadro en CSV. Cuando la página va incrustada en un visor que
+ * bloquea las descargas normales (claude.ai), se la pide al anfitrión, que
+ * enseña su propia confirmación al usuario.
+ */
+async function descargarCSV() {
+  if (!ultimoResultado) return;
+  avisar('');
+  const contenido = csv(ultimoResultado);
+  const nombre = nombreFichero(ultimoResultado);
+
+  if (window.claude?.downloads?.save) {
+    try {
+      await window.claude.downloads.save({ filename: nombre, data: contenido });
+    } catch (e) {
+      // Si el visor no admite la extensión .csv, se ofrece el mismo contenido
+      // como texto plano.
+      if (e?.code === 'extension_not_enabled') {
+        try {
+          await window.claude.downloads.save({
+            filename: nombre.replace(/\.csv$/, '.txt'),
+            data: contenido,
+          });
+        } catch (e2) {
+          avisar(AVISOS_DESCARGA[e2?.code] ?? 'No se ha podido descargar el fichero desde aquí.');
+        }
+      } else {
+        avisar(AVISOS_DESCARGA[e?.code] ?? 'No se ha podido descargar el fichero desde aquí.');
+      }
+    }
+    return;
+  }
+
+  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function compartir() {
+  if (!ultimoResultado) return;
+  const res = ultimoResultado;
+  const p = res.parametros;
+  const texto =
+    `${SISTEMAS[p.sistema]}\n` +
+    `${dinero(p.capital)} al ${String(p.tipoAnual).replace('.', ',')} % · ${FRECUENCIAS[p.frecuencia].etiqueta.toLowerCase()} · ${res.resumen.periodos} cuotas\n` +
+    `Cuota: ${dinero(res.resumen.cuotaPrimera)}\n` +
+    `Intereses: ${dinero(res.resumen.totalIntereses)}\n` +
+    `Coste total: ${dinero(res.resumen.costeTotal)}\n` +
+    `TAE: ${porcentaje(res.resumen.taeReal, 2)}`;
+
+  const fichero = new File([csv(res)], nombreFichero(res), { type: 'text/csv' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [fichero] })) {
+      await navigator.share({ title: 'Cuadro de amortización', text: texto, files: [fichero] });
+    } else {
+      await navigator.share({ title: 'Cálculo del préstamo', text: texto });
+    }
+  } catch (e) {
+    if (e?.name !== 'AbortError') descargarCSV();
+  }
+}
+
+/* --- Escenarios guardados ------------------------------------------------- */
+
+function leerEscenarios() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_ESCENARIOS) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function guardarEscenarios(lista) {
+  try {
+    localStorage.setItem(CLAVE_ESCENARIOS, JSON.stringify(lista));
+  } catch {
+    alert('No se han podido guardar los escenarios: el almacenamiento del navegador no está disponible.');
+  }
+}
+
+function guardarEscenario() {
+  if (!ultimoResultado) return;
+  const res = ultimoResultado;
+  const p = res.parametros;
+  const sugerido = `${SISTEMAS[p.sistema].split(' ')[0]} ${fmtMonedaCorta.format(p.capital)} · ${String(p.tipoAnual).replace('.', ',')} %`;
+
+  // Algunos contextos (páginas incrustadas en un iframe) bloquean prompt();
+  // en ese caso se guarda con el nombre sugerido en lugar de no hacer nada.
+  let nombre = sugerido;
+  try {
+    const respuesta = prompt('Nombre del escenario', sugerido);
+    if (respuesta === null) return;
+    nombre = respuesta;
+  } catch {
+    /* diálogos no disponibles */
+  }
+
+  const lista = leerEscenarios();
+  lista.push({
+    id: `e${Date.now()}`,
+    nombre: nombre.trim() || sugerido,
+    parametros: leerFormulario(),
+    resumen: {
+      cuota: res.resumen.cuotaPrimera,
+      intereses: res.resumen.totalIntereses,
+      coste: res.resumen.costeTotal,
+      tae: res.resumen.taeReal,
+    },
+  });
+  guardarEscenarios(lista);
+  pintarEscenarios();
+}
+
+function pintarEscenarios() {
+  const lista = leerEscenarios();
+  const bloque = $('bloque-escenarios');
+  const cuerpo = $('cuerpo-escenarios');
+  bloque.hidden = lista.length === 0;
+  cuerpo.textContent = '';
+
+  for (const esc of lista) {
+    const tr = document.createElement('tr');
+    const celdas = [
+      esc.nombre,
+      dinero(esc.resumen.cuota),
+      dinero(esc.resumen.intereses),
+      dinero(esc.resumen.coste),
+      porcentaje(esc.resumen.tae, 2),
+    ];
+    for (const c of celdas) {
+      const td = document.createElement('td');
+      td.textContent = c;
+      tr.appendChild(td);
+    }
+    const acciones = document.createElement('td');
+    const contenedor = document.createElement('div');
+    contenedor.className = 'acciones-fila';
+
+    const cargar = document.createElement('button');
+    cargar.type = 'button';
+    cargar.textContent = 'Cargar';
+    cargar.addEventListener('click', () => {
+      escribirFormulario(esc.parametros);
+      recalcular();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const borrar = document.createElement('button');
+    borrar.type = 'button';
+    borrar.textContent = 'Borrar';
+    borrar.setAttribute('aria-label', `Borrar ${esc.nombre}`);
+    borrar.addEventListener('click', () => {
+      guardarEscenarios(leerEscenarios().filter((x) => x.id !== esc.id));
+      pintarEscenarios();
+    });
+
+    contenedor.append(cargar, borrar);
+    acciones.appendChild(contenedor);
+    tr.appendChild(acciones);
+    cuerpo.appendChild(tr);
+  }
+}
+
+/* --- Arranque ------------------------------------------------------------- */
+
+function inicializar() {
+  const hoy = new Date();
+  $('fechaInicio').value = hoy.toISOString().slice(0, 10);
+
+  try {
+    const guardado = localStorage.getItem(CLAVE_ULTIMO);
+    if (guardado) escribirFormulario(JSON.parse(guardado));
+  } catch { /* sin almacenamiento: se usan los valores por defecto */ }
+
+  let temporizador;
+  const alCambiar = () => {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(recalcular, 120);
+  };
+  for (const id of CAMPOS) $(id).addEventListener('input', alCambiar);
+  for (const radio of document.querySelectorAll('input[name="sistema"]')) {
+    radio.addEventListener('change', recalcular);
+  }
+  $('formulario').addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.activeElement?.blur();
+    recalcular();
+  });
+  $('agrupar-anual').addEventListener('change', () => ultimoResultado && pintarTabla(ultimoResultado));
+
+  $('btn-csv').addEventListener('click', descargarCSV);
+  $('btn-guardar').addEventListener('click', guardarEscenario);
+  $('btn-borrar-todo').addEventListener('click', () => {
+    if (confirm('¿Borrar todos los escenarios guardados?')) {
+      guardarEscenarios([]);
+      pintarEscenarios();
+    }
+  });
+  if (navigator.share) {
+    $('btn-compartir').hidden = false;
+    $('btn-compartir').addEventListener('click', compartir);
+  }
+
+  recalcular();
+  pintarEscenarios();
+
+}
+
+inicializar();
+
+</script>
+</body>
+</html>
