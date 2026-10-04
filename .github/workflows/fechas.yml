@@ -2,21 +2,24 @@ name: genera fechas
 on:
   push:
     paths:
-    - '**.csv'
+      - '**.csv'
 
 jobs:
   genera_fechas:
     runs-on: ubuntu-latest
     name: Genera CSV
+    permissions:
+      contents: write
     steps:
       - name: checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: '0'
+          persist-credentials: false
       - name: Fechas
         run: .github/workflows/dates.sh
       - name: Check in
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      
+          github_token: ${{ github.token }}
+          branch: master
