@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>Calculadora de pr&eacute;stamos | JMor Consulting</title>
+<style>
+:root{color-scheme:light;--ink:#202020;--muted:#696d72;--accent:#df3d09;--line:#e6e4e1;--soft:#f7f6f4;--white:#fff;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:var(--ink)}
+*{box-sizing:border-box}body{margin:0;background:#fff}button,input,select{font:inherit}button,a,input,select,summary{touch-action:manipulation}[hidden]{display:none!important}h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:-.025em}h2{font-size:clamp(22px,2vw,28px);margin:0 0 6px}h3{font-size:20px;margin:0}.intro{margin:0 0 22px;color:var(--muted);font-size:14px;line-height:1.5}.card{border:1px solid var(--line);border-radius:16px;background:var(--white);box-shadow:0 5px 25px #20202006}.dashboard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);padding:clamp(20px,2.4vw,36px);gap:clamp(24px,3vw,48px)}.results{padding-left:clamp(24px,3vw,48px);border-left:1px solid var(--line);min-width:0}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px 20px}.field{min-width:0}.wide{grid-column:1/-1}.field label{display:block;font-size:13px;margin-bottom:7px;line-height:1.35}.control{position:relative}.control span{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#74777b;font-size:13px;pointer-events:none}input,select{width:100%;height:44px;border:1px solid #dadbde;border-radius:7px;background:#fff;color:var(--ink);padding:9px 12px;min-width:0;font-size:16px}.control input{padding-right:55px}input:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}input[disabled]{background:var(--soft);color:#7a7a7a}.help{font-size:12px;line-height:1.5;color:var(--muted);margin:9px 0 0}.actions{display:flex;gap:12px;margin-top:22px}.actions button{flex:1}button{cursor:pointer;min-height:43px;border:1px solid #d5d5d6;border-radius:7px;background:#fff;color:#383a3e;font-size:14px;padding:9px 15px}button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}button:hover{filter:brightness(.96)}button:disabled{opacity:.45;cursor:not-allowed}.error{margin:16px 0 0;padding:12px;background:#fff2ee;color:#a92c09;border-radius:7px;font-size:13px;line-height:1.5}.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:0 0 18px}.kpi{background:linear-gradient(120deg,#f8f7f5,#fafafa);padding:21px 18px;border-radius:10px;min-width:0;position:relative}.kpi dt{font-size:13px;line-height:1.4;margin-bottom:10px;padding-right:20px}.kpi dd{margin:0;font-family:Georgia,'Times New Roman',serif;color:var(--accent);font-size:clamp(23px,2.3vw,35px);font-weight:600;letter-spacing:-.035em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.kpi small{font-size:11px;color:var(--muted);display:block;margin-top:7px;min-height:14px}.kpi .icon{position:absolute;right:15px;top:16px;background:#fff0e5;color:var(--accent);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px}.chart-card{padding:18px 16px 12px;border:1px solid var(--line);border-radius:10px}.chart-head{display:flex;gap:12px;justify-content:space-between;align-items:baseline;flex-wrap:wrap;margin-bottom:5px}.chart-head h3{font-size:19px}.legend{display:flex;gap:12px;color:#6b6f74;font-size:11px;flex-wrap:wrap}.legend span:before{content:'';display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:50%;background:#ff642c}.legend span:last-child:before{background:#a4a6a9}#chart{display:block;width:100%;height:240px}.chart-note{font-size:11px;color:var(--muted);margin:0;line-height:1.5}.detail-strip{margin:17px 0 0;display:flex;gap:12px;justify-content:space-between;padding:14px 0 0;border-top:1px solid var(--line);font-size:12px;color:var(--muted);flex-wrap:wrap}.detail-strip strong{display:block;color:#303030;font-size:15px;margin-top:4px}.stale{opacity:.45}.notice{color:#976013;font-size:12px;margin:12px 0 0}.schedule{padding:23px clamp(20px,2.4vw,36px);margin-top:20px}.schedule-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:15px}.schedule-head h2{font-size:23px}.table-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.table-actions button{font-size:12px;padding:8px 11px;min-height:36px}.table-actions label{font-size:12px;display:flex;align-items:center;gap:6px}.table-actions input{width:16px;height:16px;accent-color:var(--accent)}.table-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;max-height:420px}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:13px}th,td{padding:11px 14px;text-align:right;white-space:nowrap;border-bottom:1px solid #f0f0ef}th{background:#f2f2f1;font-weight:500;font-size:12px;color:#45494f;position:sticky;top:0;z-index:1}th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}tbody tr:nth-child(even){background:#fbfbfa}tfoot{font-weight:600;background:#f6f5f3}tfoot td{padding-top:13px;padding-bottom:13px}.table-bottom{display:flex;gap:15px;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap}.table-bottom p{font-size:12px;color:var(--muted);margin:0}.text-button{border:0;color:var(--accent);font-size:13px;min-height:32px;padding:5px 0}.extra{border-top:1px solid var(--line);margin-top:16px;padding-top:15px}summary{cursor:pointer;font-size:13px;color:#555}.extra .fields{margin-top:15px}#saved{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.save-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:12px}.load-note{padding:16px;background:#fbf3e9;font-size:14px;line-height:1.5}.sr-only{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}main{padding:2px 2px 5px}
+@media(min-width:1700px){.dashboard{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}.fields{gap:20px 26px}#chart{height:280px}.kpi{padding:25px}}
+@media(max-width:899px){.dashboard{grid-template-columns:1fr;gap:28px}.results{padding:25px 0 0;border-left:0;border-top:1px solid var(--line)}.kpi dd{font-size:32px}#chart{height:250px}}
+@media(max-width:479px){.dashboard,.schedule{padding:19px 15px}.fields{gap:15px 12px}.field label{font-size:12px}.kpis{gap:10px}.kpi{padding:16px 12px}.kpi dd{font-size:25px}.kpi dt{font-size:12px;padding-right:0;min-height:32px}.kpi .icon{display:none}.kpi small{font-size:10px}.chart-card{padding:14px 9px}.chart-head h3{font-size:18px}#chart{height:210px}.schedule-head h2{font-size:21px}.table-actions{gap:8px}.intro{margin-bottom:18px}.detail-strip{font-size:11px}.detail-strip strong{font-size:13px}th,td{padding:9px 10px}.actions{margin-top:18px}.field.wide-small{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body><main id="panel-root">
+<p id="load-note" class="load-note">Cargando la calculadora&hellip;</p>
+<noscript><p class="load-note">Activa JavaScript en tu navegador para utilizar la calculadora.</p></noscript>
+<div class="dashboard card">
+<form id="loan" novalidate autocomplete="off">
+<h2>Par&aacute;metros del pr&eacute;stamo</h2><p class="intro">Introduce los datos y compara distintas alternativas de financiaci&oacute;n.</p>
+<div class="fields">
+<div class="field"><label for="capital">Importe del pr&eacute;stamo</label><div class="control"><input id="capital" inputmode="decimal" value="200.000"><span>&euro;</span></div></div>
+<div class="field"><label for="tipoAnual">Tipo de inter&eacute;s anual</label><div class="control"><input id="tipoAnual" inputmode="decimal" value="3,50"><span>%</span></div></div>
+<div class="field"><label for="anos">Plazo</label><div class="control"><input id="anos" inputmode="decimal" value="20"><span>a&ntilde;os</span></div></div>
+<div class="field"><label for="frecuencia">Periodicidad de las cuotas</label><select id="frecuencia"><option value="mensual">Mensual</option><option value="trimestral">Trimestral</option><option value="semestral">Semestral</option><option value="anual">Anual</option></select></div>
+<div class="field"><label for="carencia">Carencia inicial</label><div class="control"><input id="carencia" inputmode="numeric" value="0"><span>cuotas</span></div></div>
+<div class="field"><label for="comisionAperturaPct">Comisi&oacute;n de apertura</label><div class="control"><input id="comisionAperturaPct" inputmode="decimal" value="1,00"><span>%</span></div></div>
+<div class="field"><label for="gastosIniciales">Otros gastos iniciales</label><div class="control"><input id="gastosIniciales" inputmode="decimal" value="0"><span>&euro;</span></div></div>
+<div class="field"><label for="residual">Valor residual / pago final</label><div class="control"><input id="residual" inputmode="decimal" value="0"><span>&euro;</span></div></div>
+<div class="field wide"><label for="sistema">Sistema de amortizaci&oacute;n</label><select id="sistema"><option value="frances">Franc&eacute;s (cuota constante)</option><option value="aleman">Alem&aacute;n (capital constante)</option><option value="americano">Americano (solo intereses)</option></select></div>
+</div>
+<p class="help" id="system-help">Cuota peri&oacute;dica constante, salvo carencia, pago final y ajustes de redondeo.</p>
+<details class="extra"><summary>Opciones de c&aacute;lculo y fecha de inicio</summary><div class="fields">
+<div class="field"><label for="convencion">Interpretaci&oacute;n del tipo</label><select id="convencion"><option value="nominal">Nominal (TIN)</option><option value="efectivo">Efectivo anual</option></select></div>
+<div class="field"><label for="tipoCarencia">Tipo de carencia</label><select id="tipoCarencia"><option value="parcial">Parcial: solo intereses</option><option value="total">Total: se capitalizan</option></select></div>
+<div class="field wide"><label for="fechaInicio">Fecha de la primera cuota</label><input type="date" id="fechaInicio"></div></div><p class="help">La carencia forma parte del plazo total. El tipo nominal se divide entre los periodos del a&ntilde;o; el efectivo se convierte a su tasa peri&oacute;dica equivalente.</p></details>
+<div class="actions"><button class="primary" type="submit">Calcular</button><button type="button" id="reset">Restablecer</button></div>
+<p id="error" class="error" role="alert" hidden></p>
+<p id="notice" class="notice" role="status" hidden>Has cambiado los datos. Pulsa Calcular para actualizar los resultados.</p>
+</form>
+<section class="results" aria-labelledby="results-title"><h2 id="results-title">Resultados de la simulaci&oacute;n</h2><p class="intro" id="result-caption">Una visi&oacute;n conjunta de las cuotas y el coste financiero.</p>
+<div id="numbers" aria-live="polite"><dl class="kpis">
+<div class="kpi"><span class="icon" aria-hidden="true">&euro;</span><dt id="quota-label">Cuota mensual</dt><dd id="quota">&mdash;</dd><small id="quota-note">Cuota ordinaria</small></div>
+<div class="kpi"><span class="icon" aria-hidden="true">%</span><dt>TAE estimada</dt><dd id="tae">&mdash;</dd><small>Incluye comisi&oacute;n y gastos indicados</small></div>
+<div class="kpi"><span class="icon" aria-hidden="true">%</span><dt>Intereses totales</dt><dd id="interest">&mdash;</dd><small>Durante toda la vida del pr&eacute;stamo</small></div>
+<div class="kpi"><span class="icon" aria-hidden="true">&equiv;</span><dt>Coste financiero total</dt><dd id="cost">&mdash;</dd><small>Intereses + comisi&oacute;n + gastos</small></div>
+</dl>
+<div class="chart-card"><div class="chart-head"><h3>Evoluci&oacute;n de los pagos</h3><div class="legend"><span>Intereses pagados</span><span>Capital amortizado</span></div></div><svg id="chart" role="img" aria-label="Pagos anuales de intereses y capital" viewBox="0 0 620 250"></svg><p id="chart-note" class="chart-note">Importes anuales en euros. Cada barra corresponde a un a&ntilde;o del pr&eacute;stamo.</p></div>
+<div class="detail-strip"><div>Total desembolsado<strong id="total">&mdash;</strong></div><div>N&uacute;mero de cuotas<strong id="periods">&mdash;</strong></div><div>Gastos iniciales<strong id="expenses">&mdash;</strong></div></div>
+</div></section></div>
+<section class="schedule card"><div class="schedule-head"><h2>Cuadro de amortizaci&oacute;n</h2><div class="table-actions"><label><input id="annual" type="checkbox">Ver por a&ntilde;os</label><button type="button" id="csv" disabled>Descargar CSV</button><button type="button" id="save" disabled>Guardar escenario</button></div></div>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Cuadro de amortizaci&oacute;n desplazable"><table><thead><tr><th>Periodo</th><th>Fecha</th><th>Cuota &euro;</th><th>Intereses &euro;</th><th>Capital &euro;</th><th>Pendiente &euro;</th></tr></thead><tbody id="rows"></tbody><tfoot id="totals"></tfoot></table></div><div class="table-bottom"><p id="table-caption">Primeros 5 periodos. Los totales corresponden al pr&eacute;stamo completo.</p><button class="text-button" id="expand" type="button" aria-expanded="false">Ver tabla completa &rarr;</button></div>
+<p class="save-note">Los escenarios se guardan solo en este navegador. No introduzcas nombres ni datos de identificaci&oacute;n. Borrar los datos del navegador elimina los escenarios guardados.</p><div id="saved"></div><p id="storage-note" class="help" role="status"></p>
+</section></main>
+<script type="module">
+import {calcular,validar,FRECUENCIAS,SISTEMAS} from './finanzas.js';
+const $=id=>document.getElementById(id), f=$('loan');
+const money=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',useGrouping:'always',minimumFractionDigits:2,maximumFractionDigits:2});
+const number=new Intl.NumberFormat('es-ES',{useGrouping:'always',minimumFractionDigits:2,maximumFractionDigits:2});
+const datefmt=new Intl.DateTimeFormat('es-ES');
+const storageKey='jmor:prestamos:panel:escenarios:v1';
+const numeric=['capital','tipoAnual','anos','carencia','comisionAperturaPct','gastosIniciales','residual'];
+const select=['frecuencia','sistema','convencion','tipoCarencia','fechaInicio'];
+let result=null, expanded=false, timer;
+const set=(id,v)=>{$(id).textContent=v;};
+const decimal=value=>{
+ let s=String(value).trim().replace(/[\s\u00a0\u20ac%]/g,'');
+ if(!s)return NaN;
+ if(!/^[+-]?[\d.,]+$/.test(s))return NaN;
+ if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');
+ else if(s.includes(','))s=s.replace(',','.');
+ else if(/^[+-]?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');
+ return Number(s);
+};
+function params(){const p={};numeric.forEach(k=>p[k]=decimal($(k).value));select.forEach(k=>p[k]=$(k).value);if(p.sistema==='americano')p.residual=0;return p;}
+function controls(){const us=$('sistema').value==='americano';$('residual').disabled=us;set('system-help',us?'Se pagan intereses y se devuelve el capital completo al vencimiento.':$('sistema').value==='aleman'?'Se amortiza el mismo capital en cada periodo; la cuota total va disminuyendo.':'Cuota peri\u00f3dica constante, salvo carencia, pago final y ajustes de redondeo.');}
+function setValid(ok){['csv','save','expand','annual'].forEach(id=>$(id).disabled=!ok);$('numbers').classList.toggle('stale',!ok);document.querySelector('.table-scroll').classList.toggle('stale',!ok);}
+function invalidate(){result=null;setValid(false);$('notice').hidden=false;$('error').hidden=true;controls();}
+function submit(){
+ controls();const p=params(),errors=[];
+ numeric.forEach(k=>{if(!Number.isFinite(p[k]))errors.push('Revisa el campo '+$(k).labels[0].textContent+'.');});
+ if(errors.length===0){errors.push(...validar(p));const n=p.anos*(FRECUENCIAS[p.frecuencia]?.periodosPorAno||0);if(n>1200)errors.push('El plazo no puede superar 1.200 cuotas.');if(Math.abs(n-Math.round(n))>1e-8)errors.push('El plazo debe corresponder a un n\u00famero entero de cuotas.');if(!Number.isInteger(p.carencia))errors.push('La carencia debe expresarse en un n\u00famero entero de cuotas.');if(p.comisionAperturaPct<0||p.gastosIniciales<0)errors.push('Las comisiones y gastos no pueden ser negativos.');if(p.capital*p.comisionAperturaPct/100+p.gastosIniciales>=p.capital)errors.push('Los gastos iniciales deben ser menores que el capital recibido.');}
+ if(errors.length){result=null;setValid(false);$('notice').hidden=true;$('error').hidden=false;set('error',errors.join(' '));return;}
+ try{result=calcular(p);$('error').hidden=true;$('notice').hidden=true;setValid(true);paint();}catch(e){result=null;setValid(false);$('error').hidden=false;set('error',e.message);}
+}
+function paint(){const r=result.resumen,p=result.parametros;
+ const first=result.filas[p.carencia]||result.filas[0];
+ const periodNames={mensual:'mensual',trimestral:'trimestral',semestral:'semestral',anual:'anual'};
+ set('quota-label',p.sistema==='aleman'?'Primera cuota ordinaria':'Cuota '+periodNames[p.frecuencia]);set('quota',money.format(first.cuota-first.balon));
+ set('quota-note',p.carencia>0?'Tras '+p.carencia+' cuotas de carencia':p.sistema==='aleman'?'Cuotas decrecientes':p.sistema==='americano'?'Solo intereses; capital al vencimiento':p.residual>0?'Excluye el pago final adicional':'Cuota ordinaria');
+ set('tae',r.taeReal==null?'No calculable':(r.taeReal*100).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' %');set('interest',money.format(r.totalIntereses));set('cost',money.format(r.costeTotal));set('total',money.format(r.totalDesembolsado));set('periods',String(r.periodos));set('expenses',money.format(r.gastosTotales));
+ set('result-caption',SISTEMAS[p.sistema]+' \u00b7 '+FRECUENCIAS[p.frecuencia].etiqueta+' \u00b7 '+p.anos.toLocaleString('es-ES')+' a\u00f1os');
+ chart();table();
+}
+function table(){if(!result)return;const p=result.parametros,r=result.resumen;let data=result.filas;
+ if($('annual').checked){data=[];for(let i=0;i<result.filas.length;i+=r.periodosPorAno){const a=result.filas.slice(i,i+r.periodosPorAno),last=a.at(-1);data.push({periodo:'A\u00f1o '+(i/r.periodosPorAno+1),fecha:last.fecha,cuota:a.reduce((s,x)=>s+x.cuota,0),interes:a.reduce((s,x)=>s+x.interes,0),capital:a.reduce((s,x)=>s+x.capital,0),saldoFinal:last.saldoFinal});}}
+ const tr=(vals)=>{const row=document.createElement('tr');vals.forEach(v=>{const cell=document.createElement('td');cell.textContent=v;row.append(cell);});return row;};
+ $('rows').replaceChildren(...(expanded?data:data.slice(0,5)).map(x=>tr([x.periodo,x.fecha?datefmt.format(new Date(x.fecha)):'\u2014',number.format(x.cuota),number.format(x.interes),number.format(x.capital),number.format(x.saldoFinal)])));
+ $('totals').replaceChildren(tr(['Total','',number.format(r.totalCuotas),number.format(r.totalIntereses),number.format(p.capital),'0,00']));
+ set('table-caption',(expanded?'Todos los periodos.':'Primeros '+Math.min(5,data.length)+' '+($('annual').checked?'a\u00f1os.':'periodos.'))+' Totales del pr\u00e9stamo completo.');set('expand',expanded?'Ver solo el inicio \u2191':'Ver tabla completa \u2192');$('expand').setAttribute('aria-expanded',String(expanded));
+}
+function chart(){const ns='http://www.w3.org/2000/svg',svg=$('chart'),r=result.resumen;svg.replaceChildren();const add=(tag,attrs,text)=>{const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));if(text!=null)e.textContent=text;svg.append(e);return e;};
+ const years=[];result.filas.forEach((x,i)=>{const y=Math.floor(i/r.periodosPorAno);years[y]??={interest:0,capital:0};const paidInterest=Math.min(x.cuota,Math.max(0,x.interes));years[y].interest+=paidInterest;years[y].capital+=Math.max(0,x.cuota-paidInterest);});
+ const max=Math.max(...years.map(x=>x.interest+x.capital),1)*1.12,L=61,T=14,H=195,W=549;
+ for(let n=0;n<=4;n++){let val=max*n/4,y=T+H-H*n/4;add('line',{x1:L,y1:y,x2:L+W,y2:y,stroke:'#ededeb','stroke-width':1});add('text',{x:L-9,y:y+4,'text-anchor':'end',fill:'#777b80','font-size':11,'font-family':'Arial'},Math.round(val).toLocaleString('es-ES'));}
+ const step=W/years.length,bw=Math.max(1,step*.72),labelStep=Math.max(1,Math.ceil(years.length/10));
+ years.forEach((v,i)=>{const x=L+i*step+step*.14,ch=H*v.capital/max,ih=H*v.interest/max;const a=add('rect',{x,y:T+H-ch,width:bw,height:ch,fill:'#a4a6a9',rx:1});const b=add('rect',{x,y:T+H-ch-ih,width:bw,height:ih,fill:'#ff642c',rx:1});[a,b].forEach(e=>{const title=document.createElementNS(ns,'title');title.textContent='A\u00f1o '+(i+1)+': capital '+money.format(v.capital)+'; intereses pagados '+money.format(v.interest);e.append(title);});if(i%labelStep===0)add('text',{x:x+bw/2,y:233,'text-anchor':'middle',fill:'#777b80','font-size':10,'font-family':'Arial'},String(i+1));});
+ set('chart-note','Pagos por a\u00f1o del pr\u00e9stamo, en euros. Incluye el pago final.'+(result.parametros.tipoCarencia==='total'&&result.parametros.carencia>0?' Durante la carencia total no hay pagos; los intereses se incorporan a la deuda.':''));
+}
+function download(){if(!result)return;const p=result.parametros,r=result.resumen,dec=x=>Number(x).toFixed(2).replace('.',',');const lines=[['Sistema',SISTEMAS[p.sistema]],['Capital',dec(p.capital)],['Tipo anual (%)',dec(p.tipoAnual)],['Plazo (a\u00f1os)',dec(p.anos)],['Periodicidad',FRECUENCIAS[p.frecuencia].etiqueta],['Convenci\u00f3n',p.convencion],['Carencia (cuotas)',p.carencia],['Tipo de carencia',p.tipoCarencia],['Gastos iniciales',dec(r.gastosTotales)],['Coste financiero total',dec(r.costeTotal)],['Total desembolsado',dec(r.totalDesembolsado)],['TAE (%)',r.taeReal===null?'No calculable':dec(r.taeReal*100)],[],['Periodo','Fecha','Cuota','Intereses','Capital','Pendiente']];result.filas.forEach(x=>lines.push([x.periodo,x.fecha?datefmt.format(new Date(x.fecha)):'',dec(x.cuota),dec(x.interes),dec(x.capital),dec(x.saldoFinal)]));const blob=new Blob(['\ufeff'+lines.map(x=>x.join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='prestamo-'+p.sistema+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function stored(){try{const a=JSON.parse(localStorage.getItem(storageKey)||'[]');return Array.isArray(a)?a.filter(x=>x&&x.p&&typeof x.label==='string').slice(-20):[];}catch{return [];}}
+function renderSaved(){const a=stored();$('saved').replaceChildren();a.forEach((x,i)=>{const b=document.createElement('button');b.type='button';b.textContent=x.label;b.addEventListener('click',()=>{numeric.forEach(k=>$(k).value=String(x.p[k]??0).replace('.',','));select.forEach(k=>{if(x.p[k])$(k).value=x.p[k];});submit();});$('saved').append(b);});if(a.length){const b=document.createElement('button');b.className='text-button';b.textContent='Borrar escenarios';b.type='button';b.addEventListener('click',()=>{if(confirm('Borrar todos los escenarios guardados en este navegador?')){try{localStorage.removeItem(storageKey);renderSaved();}catch{set('storage-note','No se ha podido acceder al almacenamiento local.');}}});$('saved').append(b);}}
+$('save').addEventListener('click',()=>{if(!result)return;try{const a=stored(),label='Escenario '+(a.length+1)+' \u00b7 '+SISTEMAS[result.parametros.sistema].split(' ')[0];a.push({label,p:params()});localStorage.setItem(storageKey,JSON.stringify(a.slice(-20)));renderSaved();set('storage-note','Escenario guardado solo en este navegador.');}catch{set('storage-note','Este navegador no permite guardar escenarios en esta vista. Puedes descargar el CSV.');}});
+f.addEventListener('submit',e=>{e.preventDefault();submit();});f.addEventListener('input',invalidate);f.addEventListener('change',invalidate);$('csv').addEventListener('click',download);$('annual').addEventListener('change',table);$('expand').addEventListener('click',()=>{expanded=!expanded;table();});
+const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);};
+$('reset').addEventListener('click',()=>{HTMLFormElement.prototype.reset.call(f);$('fechaInicio').value=today();expanded=false;$('annual').checked=false;submit();});$('fechaInicio').value=today();
+// Only the document height is sent to the approved embedding site; never loan data.
+const reportHeight=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(parent!==window)parent.postMessage({type:'jmor-calculator-height',height:Math.ceil($('panel-root').getBoundingClientRect().height)+4},'https://jmor.consulting');},80);};
+new ResizeObserver(reportHeight).observe($('panel-root'));
+window.addEventListener('message',e=>{if(e.origin==='https://jmor.consulting'&&e.source===parent&&e.data?.type==='jmor-calculator-resize')reportHeight();});
+$('load-note').hidden=true;submit();renderSaved();reportHeight();
+</script></body></html>
