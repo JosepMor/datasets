@@ -5,7 +5,7 @@
  *
  * Al cambiar cualquier fichero, sube el número de VERSION.
  */
-const VERSION = 'prestamos-v1';
+const VERSION = 'prestamos-v2';
 const RECURSOS = [
   './',
   './index.html',
