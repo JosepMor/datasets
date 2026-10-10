@@ -10,7 +10,7 @@ Los cálculos son locales. Las estimaciones y operaciones se guardan únicamente
 
 ## Publicación y privacidad
 
-GitHub Pages en `JosepMor/datasets`, rama `master`, ruta `/valores/`. No modifica `/prestamos/`.
+GitHub Pages en `JosepMor/datasets`, ruta `/valores/`. La rama de despliegue configurada es `claude/loan-calculator-app-t72uf3`; `master` conserva una copia del código. No se modifica `/prestamos/`.
 
 No incluye dependencias remotas, backend, analítica, envíos ni datos personales de clientes. Los datos que introducen los usuarios no se transmiten. Importes antes de impuestos; no incluye dividendos ni divisas.
 
